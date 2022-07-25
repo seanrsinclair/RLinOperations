@@ -1,0 +1,19 @@
+Metadata-Version: 2.1
+Name: or-suite
+Version: 0.0.1
+Summary: OR-Suite: A set of environments for developing reinforcement learning agents for OR problems.
+Home-page: https://github.com/seanrsinclair/ORSuite
+Author: Christopher Archer, Siddhartha Banerjee, Shashank Pathak, Carrie Rucker, Sean Sinclair, Christina Yu
+Author-email: srs429@cornell.edu
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Education
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown

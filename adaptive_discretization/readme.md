@@ -2,11 +2,10 @@
 
 To prepare this code demonstration, please do the following:
 ```
-conda create --name adaptive_discretization python=3.8.5
-conda activate adaptive_discretization
 cd ORSuite
+conda create --name adaptive_discretization -f environment.yml
+conda activate adaptive_discretization
 pip install -e .
-conda install notebook
 '''
 
-Afterwards, open a jupyter notebook and go through the two demos in the examples folder.
+Afterwards, open a jupyter notebook and go through the demos in the examples folder.

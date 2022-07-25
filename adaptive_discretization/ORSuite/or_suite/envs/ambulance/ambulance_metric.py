@@ -16,7 +16,7 @@ from gym import spaces
 import math
 from .. import env_configs
 from gym.envs.classic_control import rendering
-# import pyglet
+# import pyglet import rendering
 import os
 import sys
 currentdir = os.path.dirname(os.path.realpath(__file__))
@@ -173,7 +173,7 @@ class AmbulanceEnvironment(gym.Env):
         self.viewer.text("Current timestep: " + str(self.timestep), line_x1, 0)
         self.viewer.text(text, line_x1, 100)
         self.viewer.line(line_x1, line_x2, line_y,
-                         width=2, color=rendering.WHITE)
+                         width=2, color=(255,255,255))
 
     def draw_ambulances(self, locations, line_x1, line_x2, line_y, ambulance):
         for loc in locations:

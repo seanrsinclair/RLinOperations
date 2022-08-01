@@ -81,9 +81,10 @@ class DiscreteQl(Agent):
         self.scaling = param
 
     def reset(self):
-        # Resets the intial estimates of the qVals and number of visits to each (s,a) pair
-        self.qVals = self.epLen * np.ones(self.matrix_dim, dtype=np.float32)
-        self.num_visits = np.zeros(self.matrix_dim, dtype=np.float32)
+        """
+        TODO: Reinstantiate the matrix of estimates the same way they are created
+        """
+        pass
 
     '''
         Adds the observation to records by using the update formula
@@ -105,29 +106,14 @@ class DiscreteQl(Agent):
         # into the large tensor storing Q estimates and n values
         dim = tuple(np.append(np.append([timestep], obs), action))
 
-        # Updates number of visits
-        self.num_visits[dim] += 1
-        t = self.num_visits[dim]
-
-        # Calculates learning rate
-        lr = (self.epLen + 1) / (self.epLen + t)
-
-        # Calculates bonus term
-        bonus = self.scaling * np.sqrt(1 / t)
-
-        # If at end of time horizon, value function at next step is zero
-        # otherwise, take value from the newState at next timestep
-        if timestep == self.epLen-1:
-            vFn = 0
-        else:
-            vFn = np.max(self.qVals[np.append([timestep+1], newObs)])
-        vFn = min(self.epLen, vFn)
-
-
-        # Update q Value estimate
-        self.qVals[dim] = (1 - lr) * self.qVals[dim] + \
-            lr * (reward + vFn + bonus)
-
+        """
+        TODO:
+            - Update number of visits
+            - Calculate bonus term
+            - Update Q estimate via one-step update formula
+        """
+      
+      
     def update_policy(self, k):
         '''Update internal policy based upon records'''
         pass

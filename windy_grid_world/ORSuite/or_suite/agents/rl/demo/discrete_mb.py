@@ -10,6 +10,11 @@ class DiscreteMB(Agent):
     Uniform model-based algorithm implemented for MultiDiscrete enviroments
     and actions
 
+
+    TODO: Note the Flag parameter is used to help save on some compute time.  If the flag is set to True
+    we will do so-called "One-Step" updates where we do not solve the full Bellman Equations but only update 
+    for current time-step.  Otherwise, we do full Bellman updates.
+
     Attributes:
         epLen: (int) number of steps per episode
         scaling: (float) scaling parameter for confidence intervals
@@ -89,20 +94,14 @@ class DiscreteMB(Agent):
         self.pEst = np.zeros(np.concatenate((
             np.array([self.epLen]), self.state_size, self.action_size, self.state_size)),
             dtype=np.float32)
-        # print(self.pEst.shape)
 
-    def reset(self):  # reset tensors to the way you initialize them
-        '''
-            Resets the agent by overwriting all of the estimates back to initial values
-        '''
-        self.qVals = np.ones(self.matrix_dim, dtype=np.float32) * self.epLen
-        self.vVals = np.ones(np.append(np.array([self.epLen]), self.state_size),
-                             dtype=np.float32) * self.epLen
-        self.rEst = np.zeros(self.matrix_dim, dtype=np.float32)
-        self.num_visits = np.zeros(self.matrix_dim, dtype=np.float32)
-        self.pEst = np.zeros(np.concatenate((
-            np.array([self.epLen]), self.state_size, self.action_size, self.state_size)),
-            dtype=np.float32)
+
+    def reset(self): 
+        """
+        TODO: Reinstantiate the matrix of estimates the same way they are created
+        """
+
+
 
     def update_parameters(self, param):
         """Update the scaling parameter.
@@ -123,17 +122,14 @@ class DiscreteMB(Agent):
 
 
         dim = tuple(np.append(np.append([timestep], obs), action))
-        self.num_visits[dim] += 1
 
-        new_obs_dim = tuple(
-            np.append(np.append(np.append([timestep], obs), action), newObs))
-        self.pEst[new_obs_dim] += 1
+        """
+        TODO:
+            - Update number of visits
+            - Update transition kernel
+            - Update mean reward
+        """
 
-
-        t = self.num_visits[dim]
-
-        self.rEst[dim] = (
-            (t - 1) * self.rEst[dim] + reward) / t
 
     def update_policy(self, k):
         '''Update internal policy based upon records'''
@@ -143,17 +139,12 @@ class DiscreteMB(Agent):
                 for state in itertools.product(*[np.arange(self.state_size[i]) for i in range(self.state_space.shape[0])]):
                     for action in itertools.product(*[np.arange(self.action_size[j]) for j in range(self.action_space.shape[0])]):
                         dim = tuple(np.append(np.append([h], state), action))
-                        if self.num_visits[dim] == 0:
-                            self.qVals[dim] = self.epLen
-                        else:
-                            if h == self.epLen - 1:
-                                self.qVals[dim] = min(
-                                    self.qVals[dim], self.rEst[dim] + self.scaling / np.sqrt(self.num_visits[dim]))
-                            else:
-                                vEst = min(self.epLen, np.sum(np.multiply(self.vVals[(
-                                    h+1,)], self.pEst[dim] + self.alpha) / (np.sum(self.pEst[dim] + self.alpha))))
-                                self.qVals[dim] = min(
-                                    self.qVals[dim], self.epLen, self.rEst[dim] + self.scaling / np.sqrt(self.num_visits[dim]) + vEst)
+
+                        """
+                        TODO:
+                         - Implement Bellman update procedure
+                        """
+
                     self.vVals[tuple(np.append([h], state))] = min(self.epLen,
                                                                    self.qVals[tuple(np.append([h], state))].max())
 
@@ -174,17 +165,15 @@ class DiscreteMB(Agent):
                 if self.num_visits[dim] == 0:
                     self.qVals[dim] == 0
                 else:
-                    if step == self.epLen - 1:
-                        self.qVals[dim] = min(
-                            self.qVals[dim], self.rEst[dim] + self.scaling / np.sqrt(self.num_visits[dim]))
-                    else:
-                        vEst = min(self.epLen, np.sum(np.multiply(self.vVals[(
-                            step+1,)], self.pEst[dim] + self.alpha) / (np.sum(self.pEst[dim] + self.alpha))))
-                        self.qVals[dim] = min(
-                            self.qVals[dim], self.epLen, self.rEst[dim] + self.scaling / np.sqrt(self.num_visits[dim]) + vEst)
+                        """
+                        TODO:
+                         - Implement Bellman update procedure
+                        """
 
             self.vVals[tuple(np.append([step], state))] = min(self.epLen,
                                                               self.qVals[tuple(np.append([step], state))].max())
+
+
 
         qFn = self.qVals[tuple(np.append([step], state))]
         action = np.asarray(np.where(qFn == qFn.max()))

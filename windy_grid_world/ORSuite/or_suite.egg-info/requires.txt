@@ -1,0 +1,12 @@
+numpy>=1.17
+pandas
+networkx
+cvxpy
+matplotlib
+seaborn
+scikit-learn
+scikit-learn-extra
+stable-baselines3
+pyglet
+joblib
+gym

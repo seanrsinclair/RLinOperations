@@ -43,8 +43,8 @@ DEFAULT_CONFIG =  or_suite.envs.env_configs.ambulance_metric_default_config
 
 # Updating simulation parameters for number of episodes / iterations
 epLen = DEFAULT_CONFIG['epLen']
-nEps = 2000
-numIters = 50
+nEps = 500
+numIters = 10
 
 # Calculating discretization width for the uniform discretization based algorithms
 # Note that this parameter is chosen to get the "theoretically" optimal performance
@@ -54,7 +54,7 @@ action_net = np.arange(start=0, stop=1, step=epsilon)
 state_net = np.arange(start=0, stop=1, step=epsilon)
 
 # Scaling parameter for bonus terms used in hyper parameter tuning
-scaling_list = [.001, 0.01, 0.1, 0.5, 1., 2.]
+scaling_list = [0.1]
 
 '''
 ARRIVAL DISTRIBUTIONS
@@ -148,9 +148,9 @@ for environment in environment_config_list: # Loops through all of the experimen
 
     # List of algorithms to evaluate
     agents = { # 'SB PPO': PPO(MlpPolicy, mon_env, gamma=1, verbose=0, n_steps=epLen),
-    'Random': or_suite.agents.rl.random.randomAgent(),
-    'Stable': or_suite.agents.ambulance.stable.stableAgent(CONFIG['epLen']),
-    'Median': or_suite.agents.ambulance.median.medianAgent(CONFIG['epLen']),
+    # 'Random': or_suite.agents.rl.random.randomAgent(),
+    # 'Stable': or_suite.agents.ambulance.stable.stableAgent(CONFIG['epLen']),
+    # 'Median': or_suite.agents.ambulance.median.medianAgent(CONFIG['epLen']),
     'AdaQL': or_suite.agents.rl.ada_ql.AdaptiveDiscretizationQL(epLen, scaling_list[0], True, num_ambulance*2),
     'AdaMB': or_suite.agents.rl.ada_mb.AdaptiveDiscretizationMB(epLen, scaling_list[0], 0, 2, True, True, num_ambulance, num_ambulance),
     'Unif QL': or_suite.agents.rl.enet_ql.eNetQL(action_net, state_net, epLen, scaling_list[0], (num_ambulance,num_ambulance)),
@@ -175,9 +175,9 @@ for environment in environment_config_list: # Loops through all of the experimen
 
         path_list_line.append('../data/ambulance_metric_'+str(agent)+'_'+str(num_ambulance)+'_'+str(alpha)+'_'+str(arrival_dist.__name__))
         algo_list_line.append(str(agent))
-        if agent != 'SB PPO':
-            path_list_radar.append('../data/ambulance_metric_'+str(agent)+'_'+str(num_ambulance)+'_'+str(alpha)+'_'+str(arrival_dist.__name__))
-            algo_list_radar.append(str(agent))
+
+        path_list_radar.append('../data/ambulance_metric_'+str(agent)+'_'+str(num_ambulance)+'_'+str(alpha)+'_'+str(arrival_dist.__name__))
+        algo_list_radar.append(str(agent))
 
     # Generating the figures
     fig_path = '../figures/'
@@ -190,6 +190,3 @@ for environment in environment_config_list: # Loops through all of the experimen
     fig_path, fig_name,
     additional_metric
     )
-
-
-

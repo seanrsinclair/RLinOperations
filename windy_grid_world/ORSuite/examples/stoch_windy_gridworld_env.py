@@ -84,7 +84,6 @@ class StochWindyGridWorldEnv(gym.Env):
                  allowed to use this for learning.
         """
         assert self.action_space.contains(action)
-        reward = self.reward_func(self.state)
 
         isdone = False
         if self.timestep == self.eplen - 1:
@@ -101,19 +100,21 @@ class StochWindyGridWorldEnv(gym.Env):
                 action = np.random.choice(4,1)[0]
 
         if action == 0:
-            new_x = max(0, x-1)
+            new_x = min(self.grid_height -1, x+1)
             new_y = y
         elif action == 1:
             new_x = x
             new_y = min(self.grid_width-1, y+1)
         elif action == 2:
-            new_x = min(self.grid_height -1, x+1)
+            new_x = max(0, x-1)
             new_y = y
         elif action == 3:
             new_x = x
             new_y = max(0, y-1)
 
         self.state = (new_x, new_y)
+        reward = self.reward_func(self.state)
+
         assert self.observation_space.contains(self.state)
         return self.state, reward, isdone, {}
         

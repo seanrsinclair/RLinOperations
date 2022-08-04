@@ -43,8 +43,8 @@ DEFAULT_CONFIG =  or_suite.envs.env_configs.ambulance_metric_default_config
 
 # Updating simulation parameters for number of episodes / iterations
 epLen = DEFAULT_CONFIG['epLen']
-nEps = 500
-numIters = 10
+nEps = 2000
+numIters = 25
 
 # Calculating discretization width for the uniform discretization based algorithms
 # Note that this parameter is chosen to get the "theoretically" optimal performance
@@ -54,7 +54,7 @@ action_net = np.arange(start=0, stop=1, step=epsilon)
 state_net = np.arange(start=0, stop=1, step=epsilon)
 
 # Scaling parameter for bonus terms used in hyper parameter tuning
-scaling_list = [0.1]
+scaling_list = [0.1, 1, 10]
 
 '''
 ARRIVAL DISTRIBUTIONS
@@ -147,14 +147,17 @@ for environment in environment_config_list: # Loops through all of the experimen
     mon_env = Monitor(ambulance_env)
 
     # List of algorithms to evaluate
-    agents = { # 'SB PPO': PPO(MlpPolicy, mon_env, gamma=1, verbose=0, n_steps=epLen),
-    # 'Random': or_suite.agents.rl.random.randomAgent(),
-    # 'Stable': or_suite.agents.ambulance.stable.stableAgent(CONFIG['epLen']),
-    # 'Median': or_suite.agents.ambulance.median.medianAgent(CONFIG['epLen']),
-    'AdaQL': or_suite.agents.rl.ada_ql.AdaptiveDiscretizationQL(epLen, scaling_list[0], True, num_ambulance*2),
-    'AdaMB': or_suite.agents.rl.ada_mb.AdaptiveDiscretizationMB(epLen, scaling_list[0], 0, 2, True, True, num_ambulance, num_ambulance),
-    'Unif QL': or_suite.agents.rl.enet_ql.eNetQL(action_net, state_net, epLen, scaling_list[0], (num_ambulance,num_ambulance)),
-    'Unif MB': or_suite.agents.rl.enet_mb.eNetMB(action_net, state_net, epLen, scaling_list[0], (num_ambulance,num_ambulance), 0, False),
+    # Again, we should be doing hyperparameter tuning but I am just going to plug in some specific
+    # values for you to use.
+    # Also note that we are including "fixed discretization" baselines here for comparison as well
+    agents = { 'SB PPO': PPO(MlpPolicy, mon_env, gamma=1, verbose=0, n_steps=epLen),
+    'Random': or_suite.agents.rl.random.randomAgent(),
+    'Stable': or_suite.agents.ambulance.stable.stableAgent(CONFIG['epLen']),
+    'Median': or_suite.agents.ambulance.median.medianAgent(CONFIG['epLen']),
+    'AdaQL': or_suite.agents.rl.ada_ql.AdaptiveDiscretizationQL(epLen, 0.1, True, num_ambulance*2),
+    'AdaMB': or_suite.agents.rl.ada_mb.AdaptiveDiscretizationMB(epLen, 1, 0, 2, True, True, num_ambulance, num_ambulance),
+    'Unif QL': or_suite.agents.rl.enet_ql.eNetQL(action_net, state_net, epLen, 1, (num_ambulance,num_ambulance)),
+    'Unif MB': or_suite.agents.rl.enet_mb.eNetMB(action_net, state_net, epLen, 0.1, (num_ambulance,num_ambulance), 0, False),
     }
 
 
@@ -168,8 +171,8 @@ for environment in environment_config_list: # Loops through all of the experimen
         DEFAULT_SETTINGS['dirPath'] = '../data/ambulance_metric_'+str(agent)+'_'+str(num_ambulance)+'_'+str(alpha)+'_'+str(arrival_dist.__name__)+'/'
         if agent == 'SB PPO':
             or_suite.utils.run_single_sb_algo(mon_env, agents[agent], DEFAULT_SETTINGS)
-        elif agent == 'AdaQL' or agent == 'Unif QL' or agent == 'AdaMB' or agent == 'Unif MB':
-            or_suite.utils.run_single_algo_tune(ambulance_env, agents[agent], scaling_list, DEFAULT_SETTINGS)
+        # elif agent == 'AdaQL' or agent == 'Unif QL' or agent == 'AdaMB' or agent == 'Unif MB':
+        #     or_suite.utils.run_single_algo_tune(ambulance_env, agents[agent], scaling_list, DEFAULT_SETTINGS)
         else:
             or_suite.utils.run_single_algo(ambulance_env, agents[agent], DEFAULT_SETTINGS)
 
@@ -184,6 +187,8 @@ for environment in environment_config_list: # Loops through all of the experimen
     fig_name = 'ambulance_metric'+'_'+str(num_ambulance)+'_'+str(alpha)+'_'+str(arrival_dist.__name__)+'_line_plot'+'.pdf'
     or_suite.plots.plot_line_plots(path_list_line, algo_list_line, fig_path, fig_name, int(nEps / 40)+1)
 
+    # Note that in these radar plots we will additionally include "Mean Response Time"
+    # and "Variance Response Time" as an additional comparison between the algorithms.
     additional_metric = {'MRT': lambda traj : or_suite.utils.mean_response_time(traj, lambda x, y : np.abs(x-y)), 'RTV': lambda traj : or_suite.utils.response_time_variance(traj, lambda x, y : np.abs(x-y))}
     fig_name = 'ambulance_metric'+'_'+str(num_ambulance)+'_'+str(alpha)+'_'+str(arrival_dist.__name__)+'_radar_plot'+'.pdf'
     or_suite.plots.plot_radar_plots(path_list_radar, algo_list_radar,

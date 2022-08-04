@@ -74,6 +74,7 @@ class bayes_selector_tracesAgent(Agent):
 
         future_distr = self.empirical_distr[timestep:, :]
         normalize_distr = future_distr / future_distr.sum(axis=0, keepdims=1)
+        # print(normalize_distr)
         expect_type = np.sum(normalize_distr, axis=0)
         # gets the expected number of customer arrivals
 

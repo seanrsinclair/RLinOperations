@@ -75,7 +75,6 @@ class Experiment(object):
         # print('**************************************************')
 
         index = 0
-
         for i in range(self.num_iters):  # loops over the numer of iterations
             self.agent.reset()  # resets algorithm, updates based on environment's configuration
             # updates agent configuration based on environment

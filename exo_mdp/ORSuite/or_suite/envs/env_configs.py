@@ -474,3 +474,11 @@ airline_default_config = {
     'starting_state': np.asarray([20/3, 4., 4.]),
     'P': np.asarray([[1/3, 1/3] for _ in range(epLen+1)])
 }
+
+airline_integer_config = {
+    'epLen': epLen,
+    'f': np.asarray([1., 2.]),
+    'A': np.transpose(np.asarray([[2., 3., 2.], [3., 0., 1.]])),
+    'starting_state': np.asarray([6., 4., 4.]),
+    'P': np.asarray([[1/3, 1/3] for _ in range(epLen+1)])
+}

@@ -5,7 +5,7 @@ from gym import spaces
 ''' epsilon Net agent '''
 
 
-class DiscreteQl(Agent):
+class DiscreteQl_Data(Agent):
     """
     Q-Learning algorithm  implemented for enviroments with discrete states and
     actions using the metric induces by the l_inf norm
@@ -23,6 +23,8 @@ class DiscreteQl(Agent):
     """
 
     def __init__(self, action_space, observation_space, epLen, scaling):
+
+        self.reset_count = 0
 
         self.state_space = observation_space
         if isinstance(action_space, spaces.Discrete):
@@ -68,8 +70,21 @@ class DiscreteQl(Agent):
         self.scaling = param
 
     def reset(self):
-        self.qVals = self.epLen * np.ones(self.matrix_dim, dtype=np.float32)
-        self.num_visits = np.zeros(self.matrix_dim, dtype=np.float32)
+        if self.reset_count == 0: # first reset, can just initialize them
+            self.qVals = self.epLen * np.ones(self.matrix_dim, dtype=np.float32)
+            self.num_visits = np.zeros(self.matrix_dim, dtype=np.float32)
+            self.reset_count += 1
+        elif self.reset_count == 1: # the qVals matrix will contain the trained estimates from a number of roll-outs
+            self.train_qVals = np.copy(self.qVals)
+            self.train_num_visits = np.copy(self.num_visits)
+
+            self.qVals = np.copy(self.train_qVals)
+            self.num_visits = np.copy(self.train_num_visits)
+            self.reset_count += 1
+        else:
+            self.qVals = np.copy(self.train_qVals)
+            self.num_visits = np.copy(self.train_num_visits)
+            self.reset_count += 1
 
         '''
             Adds the observation to records by using the update formula
@@ -107,7 +122,7 @@ class DiscreteQl(Agent):
 
     def update_policy(self, k):
         '''Update internal policy based upon records'''
-        pass
+        return
 
     def pick_action(self, state, step):
         '''

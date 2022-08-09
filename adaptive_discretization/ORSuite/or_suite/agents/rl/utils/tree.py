@@ -164,7 +164,7 @@ class Tree():
         else:
             return np.min([self.get_min(child, False) for child in node.children])
 
-    # TODO: Might need to make some edits to this
+    # Plots a tree discretization
     def plot(self, figname = 'tree plot', colormap_name = 'cool', max_value = 10, node=None, root=True,):
         if root:
             assert self.dim == 2, "Plot only available for 2-dimensional spaces."
@@ -205,7 +205,6 @@ class Tree():
                 best_node: the node corresponding to the largest q value containing the state
                 best_qVal: the value of the best node
                 
-            TODO: Fix to only iterate over leaves? Might improve computational complexity
         """
 
 
@@ -217,11 +216,11 @@ class Tree():
         
         else:
             best_qVal = (-1)*np.inf
-
+            best_node = node
             for child in node.children:
                 if child.contains(state):
-                    nn, nn_qVal = self.get_active_ball(state, child, False)
-                    if nn_qVal >= best_qVal:
-                        best_node, best_qVal = nn, nn_qVal
-            return best_node, best_qVal
+                    ...
 
+                # TODO: Recurse and get the active ball for the child
+                # and compare the qVal, if it is larger, then update
+            return best_node, best_qVal

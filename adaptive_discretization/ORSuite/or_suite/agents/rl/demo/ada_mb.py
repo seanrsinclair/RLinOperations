@@ -80,7 +80,7 @@ class AdaptiveDiscretizationMB(Agent):
 
 
         # Update empirical estimate of average reward for that node
-
+        active_node.rEst = ...
 
         # If it is not the last timestep - updates the empirical estimate
         # of the transition kernel based on the induced state partition at the next step
@@ -88,18 +88,24 @@ class AdaptiveDiscretizationMB(Agent):
 
             next_tree = self.tree_list[timestep+1]
             new_obs_loc = np.argmin(
-                np.max(np.abs(np.asarray(next_tree.state_leaves) - newObs), axis=1))
-            active_node.pEst[new_obs_loc] += 1
+                np.max(np.abs(np.asarray(next_tree.state_leaves) - newObs), axis=1)) # gets location of new observation
+            active_node.pEst[new_obs_loc] = ...
 
 
         if self.flag == False:  # we are doing one-step updates for the estimates
             if timestep == self.epLen - 1:  # q value estimate at last step is straightforward
-                ...
+                active_node.qVal = ...
             else:  # otherwise we need to add on an additional estimate of the value function at the next step using transition kernel
                 ...
                 # NOTE: Can use \alpha parameter as a prior for taking the expectation
+                next_tree = self.tree_list[timestep+1]
+                vESt = ... # TODO:
+                    # Need to take inner product of active_node.pEst
+                    # with next_tree.vEst
+                    # Make sure to deal with normalizing the pEst, and also add on the alpha for the prior
+                active_node.qVal = ...
 
-            # Update estimate of value function  for state leaves
+            # Update estimate of value function  for state leaves by just taking the max over the q Estimates in that region
             index = 0
             for state_val in tree.state_leaves:
                 _, qMax = tree.get_active_ball(state_val)
@@ -137,10 +143,11 @@ class AdaptiveDiscretizationMB(Agent):
 
                         # If h == H then the value function for the next step is zero
                         if h == self.epLen - 1:
-                            ...
+                            node.qVal = ...
                         else:  # Gets the next tree to estimate the transition kernel
                             next_tree = self.tree_list[h+1]
-                            ...
+                            vEst = ... # again similiar to before
+                            node.qVal = ...
 
                 # After updating the Q Value for each node - computes the estimate of the value function
                 index = 0

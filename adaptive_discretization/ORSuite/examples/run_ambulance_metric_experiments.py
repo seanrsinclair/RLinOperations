@@ -9,6 +9,9 @@ The heuristics included are:
 
 - No movement (where the action is just the current location of the ambulance)
 - Median (where the action is to travel to move the ambulance to the estimated median of the arrival distribution)
+
+We will also compare against a fixed discretization model based and model free algorithm.
+
 '''
 
 
@@ -54,6 +57,7 @@ action_net = np.arange(start=0, stop=1, step=epsilon)
 state_net = np.arange(start=0, stop=1, step=epsilon)
 
 # Scaling parameter for bonus terms used in hyper parameter tuning
+# Note: I pre-tuned the values so these are not actually used, but just highlighting it needs to be done
 scaling_list = [0.1, 1, 10]
 
 '''
@@ -84,15 +88,12 @@ def beta(step):
     return np.random.beta(5,2)
 
 # List of arrival distributions to run an experiment on
-# arrival_dists = [shifting, beta]
 arrival_dists = [beta]
 
 # Number of ambulances to run an experiment on
 num_ambulances = [1]
-# num_ambulances = [1,2,5]
 
 # Alpha cost parameter
-# alphas = [0, 0.25, 1]
 alphas = [0]
 
 
@@ -150,7 +151,8 @@ for environment in environment_config_list: # Loops through all of the experimen
     # Again, we should be doing hyperparameter tuning but I am just going to plug in some specific
     # values for you to use.
     # Also note that we are including "fixed discretization" baselines here for comparison as well
-    agents = { 'SB PPO': PPO(MlpPolicy, mon_env, gamma=1, verbose=0, n_steps=epLen),
+    # You can use or uncomment the SB PPO algorithm (or uncomment specific algorithms for debugging purposes)
+    agents = { # 'SB PPO': PPO(MlpPolicy, mon_env, gamma=1, verbose=0, n_steps=epLen),
     'Random': or_suite.agents.rl.random.randomAgent(),
     'Stable': or_suite.agents.ambulance.stable.stableAgent(CONFIG['epLen']),
     'Median': or_suite.agents.ambulance.median.medianAgent(CONFIG['epLen']),
@@ -171,7 +173,7 @@ for environment in environment_config_list: # Loops through all of the experimen
         DEFAULT_SETTINGS['dirPath'] = '../data/ambulance_metric_'+str(agent)+'_'+str(num_ambulance)+'_'+str(alpha)+'_'+str(arrival_dist.__name__)+'/'
         if agent == 'SB PPO':
             or_suite.utils.run_single_sb_algo(mon_env, agents[agent], DEFAULT_SETTINGS)
-        # elif agent == 'AdaQL' or agent == 'Unif QL' or agent == 'AdaMB' or agent == 'Unif MB':
+        # elif agent == 'AdaQL' or agent == 'Unif QL' or agent == 'AdaMB' or agent == 'Unif MB': # performs hyperparameter tuning
         #     or_suite.utils.run_single_algo_tune(ambulance_env, agents[agent], scaling_list, DEFAULT_SETTINGS)
         else:
             or_suite.utils.run_single_algo(ambulance_env, agents[agent], DEFAULT_SETTINGS)

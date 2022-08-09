@@ -34,18 +34,14 @@ class AdaptiveDiscretizationQL(Agent):
         self.scaling = param
 
     def reset(self):
-        # Resets the agent by setting all parameters back to zero
-        self.tree_list = []
-        for _ in range(self.epLen):
-            tree = Tree(self.epLen, self.dim)
-            self.tree_list.append(tree)
+        # TODO: Reset all parameters from init
+        pass
 
     def update_config(self, env, config):
         ''' Update agent information based on the config__file.'''
         pass
 
     # Gets the number of balls for each tree and adds them together
-
     def get_num_balls(self):
         total_size = 0
         for tree in self.tree_list:
@@ -63,6 +59,10 @@ class AdaptiveDiscretizationQL(Agent):
         # Gets the active ball by finding the argmax of Q values of relevant
         active_node, _ = tree.get_active_ball(obs)
 
+        # TODO: Update value function estimate for this node within the tree.
+        # Note: If timestep == epLen - 1 then next value is zero
+        # otherwise, need to get active ball for newObs in tree list for next timestep
+        
         if timestep == self.epLen - 1:
             vFn = 0
 
@@ -74,16 +74,13 @@ class AdaptiveDiscretizationQL(Agent):
 
             vFn = min(self.epLen, new_q)
 
-        # Updates parameters for the node
-        active_node.num_visits += 1
+        # Updates parameters for the node, i.e.
+        active_node.num_visits = ...
+        active_node.qVal = ...
+
+
+
         t = active_node.num_visits
-
-        lr = (self.epLen + 1) / (self.epLen + t)
-        bonus = self.scaling * np.sqrt(1 / t)
-
-        active_node.qVal = (1 - lr) * active_node.qVal + \
-            lr * (reward + vFn + bonus)
-
         '''Determines if it is time to split the current ball.'''
         if t >= 2**(2*active_node.depth):
             active_node.split_node(self.inherit_flag)

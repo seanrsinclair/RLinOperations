@@ -205,7 +205,6 @@ class Tree():
                 best_node: the node corresponding to the largest q value containing the state
                 best_qVal: the value of the best node
                 
-            TODO: Fix to only iterate over leaves? Might improve computational complexity
         """
 
 
@@ -217,4 +216,11 @@ class Tree():
         
         else:
             best_qVal = (-1)*np.inf
-            # TODO: Recurse
+            best_node = node
+            for child in node.children:
+                if child.contains(state):
+                    ...
+
+                # TODO: Recurse and get the active ball for the child
+                # and compare the qVal, if it is larger, then update
+            return best_node, best_qVal

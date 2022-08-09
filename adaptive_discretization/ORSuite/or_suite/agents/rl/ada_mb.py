@@ -25,6 +25,8 @@ class AdaptiveDiscretizationMB(Agent):
             alpha: parameter to add a prior to the transition kernels
             inherit_flag: boolean on whether to inherit when making children nodes
             flag: boolean of full (true) or one-step updates (false)
+            split_threshold: scaling for splitting a region based on number of visits
+            dimensions: state+action space dimensions
         """
 
         self.epLen = epLen
@@ -49,21 +51,15 @@ class AdaptiveDiscretizationMB(Agent):
         self.scaling = param
 
     def reset(self):
-        # Resets the agent by setting all parameters back to zero
-        # List of tree's, one for each step
-        self.tree_list = []
+        # TODO: Reset tree lists similar to the init statement
+        pass
 
-        # Makes a new partition for each step and adds it to the list of trees
-        for _ in range(self.epLen):
-            tree = MBTree(self.epLen, self.state_dim, self.action_dim)
-            self.tree_list.append(tree)
 
     def update_config(self, env, config):
         ''' Update agent information based on the config__file.'''
         pass
 
     # Gets the number of arms for each tree and adds them together
-
     def get_num_arms(self):
         total_size = 0
         for tree in self.tree_list:
@@ -78,12 +74,13 @@ class AdaptiveDiscretizationMB(Agent):
         # Gets the active ball by finding the argmax of Q values of relevant
         active_node, _ = tree.get_active_ball(obs)
 
+        # TODO: Update value function estimate for this node within the tree.
+        # First up: 
         # Increments the number of visits
-        active_node.num_visits += 1
-        t = active_node.num_visits
+
 
         # Update empirical estimate of average reward for that node
-        active_node.rEst = ((t-1)*active_node.rEst + reward) / t
+        active_node.rEst = ...
 
         # If it is not the last timestep - updates the empirical estimate
         # of the transition kernel based on the induced state partition at the next step
@@ -91,26 +88,31 @@ class AdaptiveDiscretizationMB(Agent):
 
             next_tree = self.tree_list[timestep+1]
             new_obs_loc = np.argmin(
-                np.max(np.abs(np.asarray(next_tree.state_leaves) - newObs), axis=1))
-            active_node.pEst[new_obs_loc] += 1
+                np.max(np.abs(np.asarray(next_tree.state_leaves) - newObs), axis=1)) # gets location of new observation
+            active_node.pEst[new_obs_loc] = ...
+
 
         if self.flag == False:  # we are doing one-step updates for the estimates
             if timestep == self.epLen - 1:  # q value estimate at last step is straightforward
-                active_node.qVal = min(
-                    active_node.qVal, self.epLen, active_node.rEst + self.scaling / np.sqrt(active_node.num_visits))
+                active_node.qVal = ...
             else:  # otherwise we need to add on an additional estimate of the value function at the next step using transition kernel
+                ...
+                # NOTE: Can use \alpha parameter as a prior for taking the expectation
                 next_tree = self.tree_list[timestep+1]
-                vEst = np.dot((np.asarray(active_node.pEst)+self.alpha) / (np.sum(
-                    active_node.pEst)+len(next_tree.state_leaves)*self.alpha), next_tree.vEst)
-                active_node.qVal = min(active_node.qVal, self.epLen, active_node.rEst +
-                                       vEst + self.scaling / np.sqrt(active_node.num_visits))
-            # Update estimate of value function  for state leaves
+                vESt = ... # TODO:
+                    # Need to take inner product of active_node.pEst
+                    # with next_tree.vEst
+                    # Make sure to deal with normalizing the pEst, and also add on the alpha for the prior
+                active_node.qVal = ...
+
+            # Update estimate of value function  for state leaves by just taking the max over the q Estimates in that region
             index = 0
             for state_val in tree.state_leaves:
                 _, qMax = tree.get_active_ball(state_val)
                 tree.vEst[index] = min(qMax, self.epLen, tree.vEst[index])
                 index += 1
 
+        t = active_node.num_visits
         '''Determines if it is time to split the current ball.'''
         if t >= 2**(self.split_threshold * active_node.depth):
 
@@ -133,7 +135,7 @@ class AdaptiveDiscretizationMB(Agent):
                 tree = self.tree_list[h]
                 for node in tree.leaves:
                     # If the node has not been visited before - set its Q Value
-                    # to be optimistic
+                    # to be optimistic (i.e. epLen)
                     if node.num_visits == 0:
                         node.qVal = self.epLen
                     else:
@@ -141,15 +143,11 @@ class AdaptiveDiscretizationMB(Agent):
 
                         # If h == H then the value function for the next step is zero
                         if h == self.epLen - 1:
-                            node.qVal = min(
-                                node.qVal, self.epLen, node.rEst + self.scaling / np.sqrt(node.num_visits))
-
+                            node.qVal = ...
                         else:  # Gets the next tree to estimate the transition kernel
                             next_tree = self.tree_list[h+1]
-                            vEst = np.dot((np.asarray(node.pEst)+self.alpha) / (
-                                np.sum(node.pEst)+len(next_tree.state_leaves)*self.alpha), next_tree.vEst)
-                            node.qVal = min(
-                                node.qVal, self.epLen, node.rEst + vEst + self.scaling / np.sqrt(node.num_visits))
+                            vEst = ... # again similiar to before
+                            node.qVal = ...
 
                 # After updating the Q Value for each node - computes the estimate of the value function
                 index = 0

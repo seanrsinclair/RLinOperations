@@ -63,8 +63,23 @@ class AdaptiveDiscretizationQL(Agent):
         # Note: If timestep == epLen - 1 then next value is zero
         # otherwise, need to get active ball for newObs in tree list for next timestep
         
+        if timestep == self.epLen - 1:
+            vFn = 0
 
-        
+        else:
+            # Gets the next tree to get the approximation to the value function
+            # at the next timestep
+            new_tree = self.tree_list[timestep + 1]
+            _, new_q = new_tree.get_active_ball(newObs)
+
+            vFn = min(self.epLen, new_q)
+
+        # Updates parameters for the node, i.e.
+        active_node.num_visits = ...
+        active_node.qVal = ...
+
+
+
         t = active_node.num_visits
         '''Determines if it is time to split the current ball.'''
         if t >= 2**(2*active_node.depth):

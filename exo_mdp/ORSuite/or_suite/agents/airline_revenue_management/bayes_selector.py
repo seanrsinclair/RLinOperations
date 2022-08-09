@@ -59,25 +59,34 @@ class bayes_selectorAgent(Agent):
             action: The action the agent will take in the next timestep.'''
         # use the config to populate vector of the demands
         num_type = len(self.config['f'])
-        expect_type = np.sum(self.config['P'][timestep:, :], axis=0)
-        # gets the expected number of customer arrivals
-        x = cp.Variable(num_type)
-        objective = cp.Maximize(self.config['f'].T @ x)
-        constraints = []
-        constraints += [0 <= x]
-        constraints += [x <= expect_type]
 
-        constraints += [self.config['A'] @ x <= obs]
+        # TODO: use the config to populate vector of the demands
+        # and get the expected number of arrivals of each type
+        # Note that the distribution is contained in self.config['P'].  You will need to
+        # sum up across the proper dimension, and note that should only start from the current timestep
+        # since the first axis of the matrix corresponds to time
+        expect_type = np.sum(...)
+
+
+        # TODO: Solve the optimization problem, note that now we use the expect_type variable
+
+        x = cp.Variable(num_type)
+        objective = ...
+        constraints = []
+        constraints += ... # nonnegativity constraints
+        constraints += ... # allocation must be smaller than arrival
+
+        constraints += ... # budget feasible, note that current state is contained in obs
 
         prob = cp.Problem(objective, constraints)
         prob.solve()
 
-        # enforcing rounding rule here, add a trigger to do the other version somehow as well
+
         if self.round_flag:
-            action = np.asarray([1 if x.value[i] / expect_type[i] >= 1/2 and np.all(np.less_equal(
-                np.transpose(self.config['A'])[i], obs)) else 0 for i in range(num_type)])
+            # TODO: action is 1 if x[i] / expect_type[i] >= 1/2 and feasible, otherwise zero
+            action = np.asarray([1 if ... else 0 for i in range(num_type)])
         else:
-            action = np.asarray([1 if np.random.binomial(1, np.minimum(1, np.maximum(
-                0, x.value[i] / expect_type[i])), size=None) == 1 and np.all(np.less_equal(
-                    np.transpose(self.config['A'])[i], obs)) else 0 for i in range(num_type)])
+            # TODO: action is Bern(x[i] / expect_type[i]) if feasible, otherwise 0
+            # Note: can use np.random.binomial(1, p) for this step
+            action = ...
         return action

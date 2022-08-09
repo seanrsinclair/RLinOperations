@@ -30,7 +30,6 @@ resource_allocation_simple_config = {'K': 1,
                                      'MAX_VAL': 1000
                                      }
 
-cd 
 ambulance_metric_default_config = {'epLen': 5,
                                    'arrival_dist': lambda x: np.random.beta(5, 2),
                                    'alpha': 0.25,

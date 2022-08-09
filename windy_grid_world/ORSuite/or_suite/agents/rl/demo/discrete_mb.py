@@ -13,7 +13,8 @@ class DiscreteMB(Agent):
 
     TODO: Note the Flag parameter is used to help save on some compute time.  If the flag is set to True
     we will do so-called "One-Step" updates where we do not solve the full Bellman Equations but only update 
-    for current time-step.  Otherwise, we do full Bellman updates.
+    for current time-step.  Otherwise, we do full Bellman updates.  Luckily the code is repeated and the
+    operation will only happen once depending on the flag per step.
 
     Attributes:
         epLen: (int) number of steps per episode
@@ -122,12 +123,17 @@ class DiscreteMB(Agent):
 
 
         dim = tuple(np.append(np.append([timestep], obs), action))
+        new_obs_dim = tuple(
+            np.append(np.append(np.append([timestep], obs), action), newObs))
 
         """
         TODO:
             - Update number of visits
             - Update transition kernel
             - Update mean reward
+
+        Can be accessed via self.pEst[new_obs_dim] and self.rEst[dim], etc.
+
         """
 
 
@@ -139,12 +145,23 @@ class DiscreteMB(Agent):
                 for state in itertools.product(*[np.arange(self.state_size[i]) for i in range(self.state_space.shape[0])]):
                     for action in itertools.product(*[np.arange(self.action_size[j]) for j in range(self.action_space.shape[0])]):
                         dim = tuple(np.append(np.append([h], state), action))
-
                         """
                         TODO:
                          - Implement Bellman update procedure
                         """
-
+                        if self.num_visits[dim] == 0:
+                            self.qVals[dim] = self.epLen
+                        else:
+                            if h == self.epLen - 1:
+                                self.qVals[dim] = ...
+                            else:
+                                # Note that in this case you will need to:
+                                # 1. Calculate empirical expectation over the value function for the next step
+                                # (the denominator should be the sum(pEst) + alpha for a prior)
+                                # 2. Update qValue estimate
+                                vEst = ...
+                                self.qVals[dim] = ...
+                    # Sets estimated vValue to be the max of the qValues
                     self.vVals[tuple(np.append([h], state))] = min(self.epLen,
                                                                    self.qVals[tuple(np.append([h], state))].max())
 
@@ -168,13 +185,14 @@ class DiscreteMB(Agent):
                         """
                         TODO:
                          - Implement Bellman update procedure
+                         - IDENTICAL to before - lucky us!
                         """
 
             self.vVals[tuple(np.append([step], state))] = min(self.epLen,
                                                               self.qVals[tuple(np.append([step], state))].max())
 
 
-
+        # Plays greedy with respect to the Q estimates
         qFn = self.qVals[tuple(np.append([step], state))]
         action = np.asarray(np.where(qFn == qFn.max()))
 

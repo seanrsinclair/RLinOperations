@@ -83,6 +83,7 @@ class DiscreteQl(Agent):
     def reset(self):
         """
         TODO: Reinstantiate the matrix of estimates the same way they are created
+        i.e. the qVals and num_visits
         """
         pass
 
@@ -111,7 +112,34 @@ class DiscreteQl(Agent):
             - Update number of visits
             - Calculate bonus term
             - Update Q estimate via one-step update formula
+
+        Note that these can be updated + accessed via:
+
+        self.num_visits[dim]
+        self.qVals[dim]
         """
+
+        # Updates number of visits
+
+        t = ...
+
+        # Calculates learning rate
+        lr = (self.epLen + 1) / (self.epLen + t)
+
+        # Calculates bonus term
+        bonus = self.scaling * np.sqrt(1 / t)
+
+        # If at end of time horizon, value function at next step is zero
+        # otherwise, take value from the newState at next timestep
+        if timestep == self.epLen-1:
+            vFn = 0
+        else:
+            vFn = np.max(self.qVals[np.append([timestep+1], newObs)])
+        vFn = min(self.epLen, vFn)
+
+
+        # Update q Value estimate
+        self.qVals[dim] = ...
       
       
     def update_policy(self, k):

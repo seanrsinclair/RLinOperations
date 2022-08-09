@@ -21,7 +21,7 @@ class TradeExecutionEnv(gym.Env):
         self.state = [0.5]
         self.timestep = 0
         self.market_sold = 0 # amount of inventory sold
-        return np.asarray(self.state)
+        return np.asarray(self.state, dtype=np.float32)
     
     def step(self, action):
         assert self.action_space.contains(action)
@@ -48,7 +48,7 @@ class TradeExecutionEnv(gym.Env):
         # Calculates reward
         reward = action * self.Q * price
         
-        return np.asarray(self.state), reward, done, {}
+        return np.asarray(self.state, dtype=np.float32), reward, done, {}
     
     def render(self, mode='human', close=False):
         print(f'Current state: {self.state}')

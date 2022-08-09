@@ -6,6 +6,7 @@ cd ORSuite
 conda env create --name custom_simulator --file environment.yml
 conda activate custom_simulator
 pip install -e .
+conda install jupyter
 ```
 
 Afterwards, open a jupyter notebook to read through the first code demo for the workshop, located in the examples folder.
